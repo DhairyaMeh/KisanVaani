@@ -1,0 +1,95 @@
+name: kisan_app
+description: AI-powered farming assistant for Indian farmers
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.0.0
+  flutter: ^3.16.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  
+  # HTTP & API Communication
+  http: ^1.2.0
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # UI & Navigation
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.2
+  
+  # Storage & Caching
+  shared_preferences: ^2.2.2
+  
+  # Utilities
+  uuid: ^4.3.3
+  
+  # Image Picker
+  image_picker: ^1.0.7
+  
+  # Firebase - Latest versions with M4 Mac support
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
+  cloud_firestore: ^5.6.12
+  
+  # Google Sign In - Temporarily disabled due to dependency conflicts
+  # google_sign_in: ^6.1.6
+  
+  # Location Services
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
+  permission_handler: ^11.0.1
+  
+  # Phone Auth UI Helper
+  pinput: ^3.0.1
+  
+  # Audio Recording & Playback
+  record: ^5.1.2
+  audioplayers: ^5.2.1
+  path_provider: ^2.1.5
+  firebase_storage: ^12.4.10
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+dependency_overrides:
+  record_platform_interface: ^1.2.0
+  record_linux: ^1.1.1
+
+flutter:
+  uses-material-design: true
+  
+  # Kannada font support
+  fonts:
+    - family: NotoSansKannada
+      fonts:
+        - asset: assets/fonts/NotoSansKannada-Regular.ttf
+        - asset: assets/fonts/NotoSansKannada-Bold.ttf
+          weight: 700
+        
+    - family: HindiFont
+      fonts:
+        - asset: assets/fonts/HindiFont-Regular.ttf
+        - asset: assets/fonts/HindiFont-Bold.ttf
+          weight: 700
+    
+  assets:
+    - assets/images/
+    - assets/icons/
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  main_locale: kn
+  arb_dir: lib/l10n
+  output_dir: lib/generated
+  use_deferred_loading: false

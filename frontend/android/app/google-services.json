@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "624111056535",
+    "firebase_url": "https://my-first-project-ec805-default-rtdb.firebaseio.com",
+    "project_id": "my-first-project-ec805",
+    "storage_bucket": "my-first-project-ec805.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624111056535:android:4ffbcc1f0dd83cf30bdbd2",
+        "android_client_info": {
+          "package_name": "com.example.kisan_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzLkYrkUG1LvuxP17CMyXv1Vci5BqdAgw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624111056535:android:5a36e8b1e71ebd8b0bdbd2",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzLkYrkUG1LvuxP17CMyXv1Vci5BqdAgw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
