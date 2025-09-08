@@ -1,24 +1,8 @@
-# Kisan Kavach - AI-Powered Farming Assistant
+# KisanVaani - AI-Powered Farming Assistant
 
-Kisan Kavach is an intelligent farming assistant built with Google Cloud's Agent Development Kit (ADK) and Flutter. It provides farmers with AI-powered support for crop health monitoring, government scheme recommendations, market analysis, and weather information through voice and visual interactions in local languages.
+KisanVaani is an intelligent farming assistant built with Google Cloud's Agent Development Kit (ADK) and Flutter. It provides farmers with AI-powered support for crop health monitoring, government scheme recommendations, market analysis, and weather information through voice and visual interactions in local languages.
 
-## Project Demo
 
-<div align="center">
-  <img src="./assets/demo_application.gif" alt="Kisan Kavach - AI-Powered Farming Assistant Demo" width="300" height="600">
-  <br>
-  <em>🌾 Experience Kisan Kavach in action - Voice-powered farming assistance in Kannada & English</em>
-</div>
-
-<br>
-
-<div align="center">
-  <h3>📱 Mobile App Screenshots</h3>
-  <!-- Add your mobile app screenshots here -->
-  <img src="./assets/app-screenshots.png" alt="Kisan Kavach Mobile App Screenshots" width="800" height="auto">
-  <br>
-  <em>Cross-platform Flutter application for iOS, Android, and Web</em>
-</div>
 
 ## Table of Contents
 
@@ -36,7 +20,7 @@ Kisan Kavach is an intelligent farming assistant built with Google Cloud's Agent
 
 ## Overview
 
-Kisan Kavach leverages cutting-edge AI technology to assist farmers with:
+KisanVaani leverages cutting-edge AI technology to assist farmers with:
 
 - **Plant Disease Detection**: Upload crop images to identify diseases and get treatment recommendations
 - **Government Schemes**: Find relevant agricultural schemes and subsidies
@@ -227,7 +211,7 @@ Edit `lib/config/app_config.dart`:
 class AppConfig {
   static const String baseUrl = 'http://localhost:8084'; // For development
   static const String apiVersion = 'v1';
-  static const String appName = 'Kisan Kavach';
+  static const String appName = 'KisanVaani';
 }
 ```
 
