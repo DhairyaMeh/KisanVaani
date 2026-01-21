@@ -2,7 +2,7 @@
 
 ## Qdrant Problem Statement: Search, Memory, and Recommendations for Societal Impact
 
-**Team Name:** The Agentic Troop  
+**Team Name:** CodeART 
 **GitHub Repository:** https://github.com/DhairyaMeh/KisanVaani
 
 ---
@@ -360,7 +360,7 @@ KisanVaani demonstrates how **Qdrant** can power a socially impactful AI applica
 
 ---
 
-## Team: The Agentic Troop
+## Team: CodeART
 
 **Convolve 4.0 | Pan-IIT AI/ML Hackathon | Qdrant Problem Statement**
 
