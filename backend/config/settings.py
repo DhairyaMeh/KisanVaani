@@ -52,6 +52,14 @@ class Settings:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     ENABLE_METRICS: bool = os.getenv("ENABLE_METRICS", "true").lower() == "true"
     
+    # Qdrant Vector Database Configuration
+    QDRANT_HOST: str = os.getenv("QDRANT_HOST", "localhost")
+    QDRANT_PORT: int = int(os.getenv("QDRANT_PORT", "6333"))
+    QDRANT_URL: str = os.getenv("QDRANT_URL", "")  # For Qdrant Cloud
+    QDRANT_API_KEY: str = os.getenv("QDRANT_API_KEY", "")  # For Qdrant Cloud
+    QDRANT_COLLECTION_NAME: str = os.getenv("QDRANT_COLLECTION_NAME", "government_schemes")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "models/embedding-001")
+    
     # Speech Enhancement
     SPEECH_ENHANCEMENT: bool = os.getenv("SPEECH_ENHANCEMENT", "true").lower() == "true"
     NOISE_REDUCTION: bool = os.getenv("NOISE_REDUCTION", "true").lower() == "true"

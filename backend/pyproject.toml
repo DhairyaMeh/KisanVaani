@@ -3,7 +3,7 @@ name = "backend"
 version = "0.1.0"
 description = "Kisan AI Backend with Google ADK Integration"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "aiofiles>=24.1.0",
     "fastapi>=0.116.1",
@@ -27,4 +27,9 @@ dependencies = [
     "bs4==0.0.2",
     "absl-py==2.3.1",
     "llama-index==0.12.50",
+    # Qdrant Vector Database
+    "qdrant-client>=1.9.0",
+    "llama-index-vector-stores-qdrant>=0.2.0",
+    "llama-index-embeddings-google>=0.1.0",
+    "pypdf>=4.0.0",
 ]

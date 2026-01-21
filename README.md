@@ -1,34 +1,100 @@
 # KisanVaani - AI-Powered Farming Assistant
 
-KisanVaani is an intelligent farming assistant built with Google Cloud's Agent Development Kit (ADK) and Flutter. It provides farmers with AI-powered support for crop health monitoring, government scheme recommendations, market analysis, and weather information through voice and visual interactions in local languages.
+> **Convolve 4.0 Submission** | Pan-IIT AI/ML Hackathon | Qdrant Problem Statement
 
+KisanVaani is an intelligent farming assistant built with Google Cloud's Agent Development Kit (ADK), **Qdrant Vector Database**, and Flutter. It provides farmers with AI-powered support for crop health monitoring, government scheme recommendations, market analysis, and weather information through voice and visual interactions in local languages.
 
+---
+
+## 🏆 Hackathon: Convolve 4.0 - Qdrant Challenge
+
+### Problem Statement: Search, Memory, and Recommendations for Societal Impact
+
+KisanVaani addresses the **agricultural accessibility challenge** - a critical societal issue affecting millions of farmers in India who lack access to timely information about government schemes, market prices, and crop health management.
+
+### Why This Matters
+
+- **500+ million** farmers in India need accessible agricultural information
+- **Language barriers** prevent access to digital resources (addressed via Kannada/Hindi/English support)
+- **Information asymmetry** causes farmers to miss government subsidies worth ₹6,000+ annually
+- **Crop losses** due to late disease detection affect farmer livelihoods
+
+### How Qdrant Powers KisanVaani
+
+| Capability | Qdrant Usage |
+|------------|--------------|
+| **Search** | Semantic search over government scheme documents (PDFs) using vector embeddings |
+| **Memory** | Persistent storage of agricultural knowledge base with real-time updates |
+| **Recommendations** | Context-aware scheme recommendations based on farmer location and needs |
+
+---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
+- [Problem Statement & Societal Impact](#-hackathon-convolve-40---qdrant-challenge)
+- [System Architecture](#architecture)
+- [Qdrant Integration](#-qdrant-vector-database-integration)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Backend Setup](#backend-setup)
 - [Frontend Setup](#frontend-setup)
 - [Agent System](#agent-system)
 - [API Documentation](#api-documentation)
+- [Limitations & Ethics](#-limitations--ethical-considerations)
 - [Deployment](#deployment)
-- [Development Guide](#development-guide)
-- [Troubleshooting](#troubleshooting)
 
 ## Overview
 
 KisanVaani leverages cutting-edge AI technology to assist farmers with:
 
 - **Plant Disease Detection**: Upload crop images to identify diseases and get treatment recommendations
-- **Government Schemes**: Find relevant agricultural schemes and subsidies
+- **Government Schemes**: RAG-based retrieval using **Qdrant** for finding relevant agricultural schemes and subsidies
 - **Market Analysis**: Get real-time crop prices and market trends
 - **Weather Information**: Receive weather updates and farming advice
-- **Multi-language Support**: Available in English and Kannada with voice interaction
+- **Multi-language Support**: Available in English, Hindi and Kannada with voice interaction
 
 ## Architecture
+
+### System Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           KisanVaani Architecture                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   Flutter   │    │   Voice     │    │   Camera    │    │   Text      │  │
+│  │   Mobile    │────│   Input     │────│   Input     │────│   Input     │  │
+│  │   App       │    │  (Kannada)  │    │  (Images)   │    │             │  │
+│  └──────┬──────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      FastAPI Backend Server                          │    │
+│  │  ┌───────────────────────────────────────────────────────────────┐  │    │
+│  │  │                    Root Agent (Gemini 2.5)                     │  │    │
+│  │  │         Intent Detection & Query Routing                       │  │    │
+│  │  └───────────────────────────────────────────────────────────────┘  │    │
+│  │         │              │              │              │               │    │
+│  │         ▼              ▼              ▼              ▼               │    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │    │
+│  │  │ Schemes  │  │  Market  │  │  Plant   │  │ Weather  │            │    │
+│  │  │  Agent   │  │  Agent   │  │  Health  │  │  Agent   │            │    │
+│  │  │          │  │          │  │  Agent   │  │          │            │    │
+│  │  └────┬─────┘  └──────────┘  └──────────┘  └──────────┘            │    │
+│  │       │                                                              │    │
+│  │       ▼                                                              │    │
+│  │  ┌─────────────────────────────────────────┐                        │    │
+│  │  │        🔷 QDRANT VECTOR DATABASE 🔷      │                        │    │
+│  │  │  ┌─────────────────────────────────┐   │                        │    │
+│  │  │  │  Government Schemes Collection   │   │                        │    │
+│  │  │  │  • PDF Documents → Embeddings    │   │                        │    │
+│  │  │  │  • Semantic Search               │   │                        │    │
+│  │  │  │  • Metadata Filtering            │   │                        │    │
+│  │  │  └─────────────────────────────────┘   │                        │    │
+│  │  └─────────────────────────────────────────┘                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ### Backend Architecture
 
@@ -36,7 +102,7 @@ The backend is built using Google's Agent Development Kit (ADK) with a multi-age
 
 ```
 Root Agent (Intent Detection)
-├── Government Schemes Agent
+├── Government Schemes Agent ──► Qdrant RAG Retrieval
 ├── Market Analyzer Agent  
 ├── Plant Health Support Agent
 │   ├── Plant Disease Detection Agent
@@ -47,8 +113,9 @@ Root Agent (Intent Detection)
 **Key Components:**
 - **FastAPI Server**: RESTful API with speech and image processing
 - **Multi-Agent System**: Specialized agents for different farming domains
+- **Qdrant Vector Database**: Semantic search over government scheme documents
 - **Google Cloud Integration**: Vertex AI, Speech-to-Text, Text-to-Speech
-- **RAG System**: Document retrieval for government schemes
+- **RAG System**: Document retrieval using Qdrant for government schemes
 
 ### Frontend Architecture
 
@@ -76,7 +143,106 @@ Cross-platform Flutter application with:
 - Secure authentication
 - Multi-language localization
 
+---
+
+## 🔷 Qdrant Vector Database Integration
+
+### Why Qdrant?
+
+Qdrant is the **core retrieval engine** powering KisanVaani's government schemes search functionality. It enables:
+
+1. **Semantic Search**: Find relevant schemes even when farmers use colloquial terms
+2. **Fast Retrieval**: Sub-second query response for real-time conversations
+3. **Scalability**: Handle growing agricultural knowledge base
+4. **Hybrid Search**: Combine semantic similarity with metadata filtering (state, scheme type)
+
+### Qdrant Architecture in KisanVaani
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                    Qdrant RAG Pipeline                          │
+├────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────┐     ┌─────────────────┐     ┌──────────────┐ │
+│  │   PDF       │     │   Text          │     │   Google     │ │
+│  │  Documents  │────►│   Chunking      │────►│  Embeddings  │ │
+│  │  (Schemes)  │     │   (512 tokens)  │     │  (768 dim)   │ │
+│  └─────────────┘     └─────────────────┘     └──────┬───────┘ │
+│                                                      │         │
+│                                                      ▼         │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                   QDRANT COLLECTION                      │  │
+│  │              "government_schemes"                        │  │
+│  │  ┌─────────────────────────────────────────────────┐    │  │
+│  │  │  Vector: [0.12, -0.34, 0.56, ...]  (768 dims)   │    │  │
+│  │  │  Payload: {                                      │    │  │
+│  │  │    "text": "PM-KISAN provides ₹6000...",        │    │  │
+│  │  │    "source": "Karnataka_Schemes_2024.pdf",       │    │  │
+│  │  │    "chunk_index": 5                              │    │  │
+│  │  │  }                                               │    │  │
+│  │  └─────────────────────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                              │                                 │
+│                              ▼                                 │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                   RETRIEVAL QUERY                        │  │
+│  │  User: "What subsidies are available for farmers?"       │  │
+│  │                         │                                 │  │
+│  │                         ▼                                 │  │
+│  │  1. Embed query using Google Embeddings                  │  │
+│  │  2. Search Qdrant (cosine similarity, top_k=5)          │  │
+│  │  3. Return relevant scheme documents                     │  │
+│  │  4. Feed to Gemini for response generation               │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Key Files for Qdrant Integration
+
+| File | Purpose |
+|------|---------|
+| `backend/services/qdrant_service.py` | Qdrant client wrapper with embedding and search functions |
+| `backend/agents/.../qdrant_rag_tool.py` | ADK-compatible RAG tool for agent use |
+| `backend/agents/.../prepare_qdrant_corpus.py` | Script to index PDF documents into Qdrant |
+
+### Qdrant Configuration
+
+```env
+# .env configuration
+QDRANT_HOST=localhost
+QDRANT_PORT=6333
+QDRANT_COLLECTION_NAME=government_schemes
+EMBEDDING_MODEL=models/embedding-001
+```
+
+### Running Qdrant
+
+```bash
+# Start Qdrant with Docker
+docker run -d --name qdrant -p 6333:6333 -p 6334:6334 \
+  -v qdrant_storage:/qdrant/storage qdrant/qdrant
+
+# Index documents
+cd backend
+python agents/kisan_agent/sub_agents/government_schemes_agent/prepare_corpus/prepare_qdrant_corpus.py
+```
+
+### Search / Memory / Recommendation Logic
+
+| Capability | Implementation |
+|------------|----------------|
+| **Search** | Semantic vector search with `similarity_top_k=5` and `score_threshold=0.6` |
+| **Memory** | Persistent Qdrant collection stores agricultural knowledge; survives restarts |
+| **Recommendations** | Context-aware retrieval based on farmer's state, language, and query intent |
+
+---
+
 ## Prerequisites
+
+### Qdrant Vector Database
+- **Docker** (recommended): `docker run -p 6333:6333 qdrant/qdrant`
+- **Or Qdrant Cloud**: Free tier available at [cloud.qdrant.io](https://cloud.qdrant.io)
 
 ### Google Cloud Platform
 - GCP Project with billing enabled
@@ -93,8 +259,9 @@ Cross-platform Flutter application with:
 - Cloud Storage
 
 ### Development Tools
-- Python 3.9+
+- Python 3.11+
 - Flutter SDK 3.16+
+- Docker (for Qdrant)
 - Node.js (for Firebase CLI)
 - Git
 
@@ -677,6 +844,46 @@ GET /
 
 Returns API status and documentation link.
 
+---
+
+## ⚠️ Limitations & Ethical Considerations
+
+### Known Limitations
+
+| Limitation | Description | Mitigation |
+|------------|-------------|------------|
+| **Language Coverage** | Currently supports Kannada, Hindi, English only | Expandable to other Indian languages |
+| **Offline Mode** | RAG retrieval requires internet connectivity | Basic cached responses available offline |
+| **Image Quality** | Disease detection accuracy depends on image quality | User guidance for better photo capture |
+| **Data Currency** | Scheme information may become outdated | Regular corpus updates recommended |
+
+### Bias & Fairness Considerations
+
+- **Regional Bias**: Initial focus on Karnataka schemes; expanding to pan-India coverage
+- **Literacy Assumption**: Voice interface prioritized for low-literacy farmers
+- **Digital Access**: Web/mobile app assumes smartphone access; USSD fallback planned
+
+### Privacy & Data Handling
+
+- **No PII Storage**: User queries are not stored beyond the session
+- **Local Processing Option**: Qdrant can run locally for sensitive deployments
+- **Consent**: Clear user consent for voice recording and image upload
+
+### Safety Considerations
+
+- **Medical Advice Disclaimer**: Plant disease recommendations are advisory, not professional diagnosis
+- **Financial Decisions**: Scheme information is informational; official verification recommended
+- **Hallucination Prevention**: RAG ensures responses are grounded in retrieved documents
+
+### Responsible AI Practices
+
+1. **Traceable Outputs**: All recommendations cite source documents from Qdrant
+2. **Confidence Scores**: Retrieval similarity scores indicate answer reliability
+3. **Fallback Responses**: Clear messaging when information is unavailable
+4. **Human Oversight**: Designed to augment, not replace, agricultural extension officers
+
+---
+
 ## Deployment
 
 ### Backend Deployment (Google Cloud Run)
@@ -792,11 +999,36 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Google Cloud Platform for AI services
-- Firebase for backend services
-- Flutter team for the cross-platform framework
-- Open source community for various libraries used
+- **[Qdrant](https://qdrant.tech)** - High-performance vector search engine powering our RAG system
+- **Google Cloud Platform** - Vertex AI, Speech-to-Text, Text-to-Speech services
+- **Firebase** - Authentication and backend services
+- **Flutter** - Cross-platform mobile framework
+- **Convolve 4.0** - Pan-IIT AI/ML Hackathon for the opportunity
 
 ---
 
-**Built with ❤️ for Indian farmers by The Agentic Troop using Google Agent Development Kit**
+## 📚 Resources & References
+
+- [Qdrant Documentation](https://qdrant.tech/documentation/)
+- [Qdrant GitHub](https://github.com/qdrant/qdrant)
+- [Google ADK Documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/agent-builder/adk)
+- [Flutter Documentation](https://flutter.dev/docs)
+
+---
+
+## 👥 Team: The Agentic Troop
+
+| Role | Contribution |
+|------|--------------|
+| **AI/ML Engineering** | Multi-agent system design, Qdrant RAG integration |
+| **Backend Development** | FastAPI server, Google Cloud integration |
+| **Mobile Development** | Flutter cross-platform application |
+| **Domain Research** | Agricultural schemes, farmer needs assessment |
+
+---
+
+<p align="center">
+  <b>🌾 Built with ❤️ for Indian farmers by The Agentic Troop 🌾</b>
+  <br><br>
+  <i>Convolve 4.0 | Pan-IIT AI/ML Hackathon | Qdrant Problem Statement</i>
+</p>

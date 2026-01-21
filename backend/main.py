@@ -2,6 +2,7 @@ import base64
 import io
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from pydantic import BaseModel
 import uvicorn
@@ -22,6 +23,15 @@ app = FastAPI(
     title="Chat API with Text and Speech Processing",
     description="An API that accepts text or audio, processes it, and returns text and speech.",
     version="1.0.0",
+)
+
+# --- CORS Middleware ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
 )
 # --- Pydantic Models for Response ---
 class ChatResponse(BaseModel):
@@ -84,24 +94,112 @@ def run_vertex_agent_local(text:str):
     final_response = ""
 
     if reasoning_engines is None or root_agent is None:
-        return f"[stub] {text}"
+        # Return helpful stub response when agent isn't available
+        return get_demo_response(text)
 
-    app = reasoning_engines.AdkApp(
-        agent=root_agent,
-        enable_tracing=True,
-    )
+    try:
+        app = reasoning_engines.AdkApp(
+            agent=root_agent,
+            enable_tracing=True,
+        )
 
-    session = app.create_session(user_id="u_456")
+        session = app.create_session(user_id="u_456")
 
-    for event in app.stream_query(
-        user_id="u_456",
-        session_id=session.id,
-        message=text,
-    ):
-        if event.get("content") and event.get("content", {}).get("parts"):
-            final_response = event["content"]["parts"][0].get("text", "")
+        for event in app.stream_query(
+            user_id="u_456",
+            session_id=session.id,
+            message=text,
+        ):
+            if event.get("content") and event.get("content", {}).get("parts"):
+                final_response = event["content"]["parts"][0].get("text", "")
         
-    return final_response
+        # If we got an empty response, return demo response
+        if not final_response.strip():
+            return get_demo_response(text)
+            
+        return final_response
+    except Exception as e:
+        print(f"Agent error: {e}")
+        return get_demo_response(text)
+
+
+def get_demo_response(text: str) -> str:
+    """Return a helpful demo response when the AI agent is unavailable."""
+    text_lower = text.lower()
+    
+    if any(word in text_lower for word in ['scheme', 'yojana', 'subsidy', 'pm kisan']):
+        return """🌾 **Government Schemes for Farmers**
+
+Here are some important schemes available for farmers:
+
+1. **PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)**
+   - ₹6,000 per year in 3 installments
+   - For all landholding farmer families
+   - Apply at: https://pmkisan.gov.in
+
+2. **Kisan Credit Card (KCC)**
+   - Low-interest agricultural loans
+   - Insurance coverage included
+
+3. **PM Fasal Bima Yojana**
+   - Crop insurance scheme
+   - Protection against natural calamities
+
+📋 For Karnataka-specific schemes, visit: https://raitamitra.karnataka.gov.in/english
+
+Note: This is a demo response. For personalized assistance, please configure valid GCP credentials."""
+
+    elif any(word in text_lower for word in ['weather', 'rain', 'temperature', 'forecast']):
+        return """🌤️ **Weather Information**
+
+For accurate weather forecasts for your area, please check:
+- IMD: https://mausam.imd.gov.in
+- Skymet: https://www.skymetweather.com
+
+Note: This is a demo response. Configure GCP credentials for live weather data."""
+
+    elif any(word in text_lower for word in ['price', 'market', 'mandi', 'rate']):
+        return """📊 **Market Price Information**
+
+Check current agricultural commodity prices at:
+- Agmarknet: https://agmarknet.gov.in
+- eNAM: https://enam.gov.in
+
+Note: This is a demo response. Configure GCP credentials for live market data."""
+
+    elif any(word in text_lower for word in ['disease', 'pest', 'leaf', 'plant', 'crop']):
+        return """🌱 **Plant Health Assistance**
+
+For plant disease diagnosis:
+1. Take clear photos of affected parts
+2. Note the symptoms you observe
+3. Check soil moisture and recent weather
+
+Common resources:
+- ICAR Portal: https://icar.org.in
+- Plantix App for disease identification
+
+Note: This is a demo response. Configure GCP credentials for AI-powered diagnosis."""
+
+    else:
+        return f"""🙏 **Namaskara! Welcome to KisanVaani**
+
+I'm your AI farming assistant. I can help you with:
+
+• 🏛️ Government schemes and subsidies
+• 🌤️ Weather forecasts
+• 📊 Market prices
+• 🌱 Plant disease diagnosis
+
+Your query: "{text}"
+
+Note: This is a demo response. For full AI-powered assistance, please configure valid GCP credentials in the backend.
+
+Try asking about:
+- "What schemes are available for farmers?"
+- "What is the weather forecast?"
+- "Current tomato prices"
+"""
 
 
 def run_vertex_agent_deployed(text: str, initial_state: dict) -> str:
@@ -128,9 +226,8 @@ async def call_external_api(text: str,initial_state:dict) -> str:
     """
     print(f"--- Calling External API with text: '{text}' ---")
     try:
-        # This is a placeholder. In a real scenario, the API would do something.
-        # We'll just echo the text back in a structured way.
-        response_final = run_vertex_agent_deployed(text,initial_state)
+        # Use local agent instead of deployed one
+        response_final = run_vertex_agent_local(text)
         return response_final
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"External API processing failed: {exc}")
@@ -238,12 +335,13 @@ async def chat_endpoint(request: KisanChatSchema):
     initial_state_dict = create_initial_dict(requests)
     external_api_response_text = await call_external_api(input_text, initial_state_dict)
 
-    # 3. Pass the response to the TTS model
+    # 3. Pass the response to the TTS model (optional - continue if it fails)
+    final_audio_bytes = b""
     try:
         final_audio_bytes = await synthesize_text_to_speech(external_api_response_text)
         print(external_api_response_text)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Text-to-Speech processing failed: {e}")
+        print(f"Warning: Text-to-Speech processing failed (continuing without audio): {e}")
 
     # 4. Prepare and return the final response
     # We can return the audio in two ways:

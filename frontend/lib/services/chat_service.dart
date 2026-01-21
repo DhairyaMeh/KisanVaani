@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../models/message.dart';
 
 class ChatService {
-  static const String baseUrl = 'http://localhost:8084'; // Updated to match backend port
+  static const String baseUrl = 'http://localhost:8000'; // Backend API port
   String? _sessionId;
   
   // Generate session ID once per chat session
@@ -24,13 +24,21 @@ class ChatService {
     try {
       final url = Uri.parse('$baseUrl/api/chat_endpoint');
       
-      // Use form data format to match backend expectations
-      var request = http.MultipartRequest('POST', url);
-      request.fields['text'] = message;
-      // Note: Backend doesn't use user_id, session_id, language - but we keep for future
-      
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      // Send as JSON to match backend KisanChatSchema
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'text': message,
+          'audio_file': null,
+          'image': null,
+          'city': 'Bangalore',
+          'name': userId,
+          'country': 'India',
+          'state': 'Karnataka',
+          'preferred_language': language == 'kn' ? 'Kannada' : language == 'hi' ? 'Hindi' : 'English',
+        }),
+      ).timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -62,16 +70,25 @@ class ChatService {
     try {
       final url = Uri.parse('$baseUrl/api/chat_endpoint');
       
-      var request = http.MultipartRequest('POST', url);
+      // Read audio file and encode to base64
+      final audioBytes = await audioFile.readAsBytes();
+      final audioBase64 = base64Encode(audioBytes);
       
-      // Add audio file with the exact field name backend expects
-      request.files.add(
-        await http.MultipartFile.fromPath('audio_file', audioFile.path),
-      );
-      // Note: Backend doesn't use additional fields but we keep for consistency
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      // Send as JSON with base64 encoded audio
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'text': '',  // Empty text for voice messages
+          'audio_file': audioBase64,
+          'image': null,
+          'city': 'Bangalore',
+          'name': userId,
+          'country': 'India',
+          'state': 'Karnataka',
+          'preferred_language': language == 'kn' ? 'Kannada' : language == 'hi' ? 'Hindi' : 'English',
+        }),
+      ).timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
